@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { getAllFormSubmissions } from "@/app/actions";
+import { getPatients } from "@/app/actions/patient";
 import MyFormsClient from "./page.client";
 
 export default async function MyFormsPage() {
@@ -14,8 +15,11 @@ export default async function MyFormsPage() {
     redirect("/login");
   }
 
-  const submissions = await getAllFormSubmissions();
+  const [submissions, patients] = await Promise.all([
+    getAllFormSubmissions(),
+    getPatients(),
+  ]);
 
-  return <MyFormsClient initialSubmissions={submissions} />;
+  return <MyFormsClient initialSubmissions={submissions} patients={patients} />;
 }
 

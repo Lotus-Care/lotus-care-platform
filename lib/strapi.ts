@@ -110,11 +110,13 @@ export type {
 export async function getForms(): Promise<StrapiFormResponse> {
   try {
     const { data } = await api.get<FormResponse>(
-      "/api/formularios?populate=secoes.campos.alertas"
+      "/api/formularios?populate=secoes.campos.alertas&sort=publishedAt:desc"
     );
 
-    // Filtra apenas formulários ativos (se o campo existir)
-    const activeForms = data.data?.filter((form) => form.ativo !== false) || [];
+    // Filtra apenas formulários ativos e publicados
+    const activeForms = data.data?.filter(
+      (form) => form.ativo !== false && form.publishedAt
+    ) || [];
 
     return {
       data: activeForms.length > 0 ? activeForms : null,

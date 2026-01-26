@@ -1,10 +1,14 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { signOut } from "@/app/actions";
 import { headers, cookies } from "next/headers";
 import { db } from "@/db";
 import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import Link from "next/link";
+import Image from "next/image";
+import { getAllFormSubmissions } from "@/app/actions/form";
+import { getPatients } from "@/app/actions/patient";
+import DashboardCharts from "./components/DashboardCharts";
 
 export default async function Home() {
   const headersList = await headers();
@@ -42,76 +46,114 @@ export default async function Home() {
     }
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-8">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Bem-vindo ao Lorus Care
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Você está autenticado com sucesso!
-          </p>
-        </div>
+  // Busca dados para os gráficos
+  const [submissions, patients] = await Promise.all([
+    getAllFormSubmissions().catch(() => []),
+    getPatients().catch(() => []),
+  ]);
 
-        <div className="mb-6 rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-800">
-          <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
-            Informações da Sessão
-          </h2>
-          <div className="space-y-2">
-            <div>
-              <span className="font-medium text-gray-700 dark:text-gray-300">
-                Nome:
-              </span>{" "}
-              <span className="text-gray-900 dark:text-white">
-                {session.user.name}
-              </span>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700 dark:text-gray-300">
-                Email:
-              </span>{" "}
-              <span className="text-gray-900 dark:text-white">
-                {session.user.email}
-              </span>
-            </div>
+  const quickActions = [
+    {
+      href: "/formularios",
+      title: "Novo Formulário",
+      description: "Preencha formulários para seus pacientes",
+      icon: (
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      ),
+    },
+    {
+      href: "/meus-formularios",
+      title: "Meus Formulários",
+      description: "Visualize e gerencie seus formulários preenchidos",
+      icon: (
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+      ),
+    },
+    {
+      href: "/pacientes",
+      title: "Pacientes",
+      description: "Gerencie seus pacientes cadastrados",
+      icon: (
+        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      ),
+    },
+  ];
+
+  return (
+    <div className="px-4 py-12 pt-20 sm:px-6 lg:px-8 lg:pt-12">
+      <div className="mx-auto max-w-6xl">
+        {/* Header Section */}
+        <div className="mb-12">
+          <div className="mb-6 flex items-center gap-4">
             {session.user.image && (
-              <div className="mt-4">
-                <img
-                  src={session.user.image}
-                  alt="Avatar"
-                  className="h-20 w-20 rounded-full"
-                />
-              </div>
+              <Image
+                src={session.user.image}
+                alt="Avatar"
+                width={64}
+                height={64}
+                className="h-16 w-16 rounded-full border-2 border-[var(--border)]"
+              />
             )}
+            <div>
+              <h1 className="text-3xl font-bold text-[var(--foreground)] sm:text-4xl">
+                Bem-vindo, {session.user.name?.split(" ")[0]}!
+              </h1>
+              <p className="mt-2 text-[var(--muted-foreground)]">
+                {session.user.email}
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <a
-            href="/formularios"
-            className="block rounded-2xl bg-white p-6 shadow-lg transition-shadow hover:shadow-xl dark:bg-gray-800"
-          >
-            <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
-              Formulários
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Preencha formulários para seus pacientes
-            </p>
-          </a>
-
-          <a
-            href="/pacientes"
-            className="block rounded-2xl bg-white p-6 shadow-lg transition-shadow hover:shadow-xl dark:bg-gray-800"
-          >
-            <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
-              Pacientes
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Gerencie seus pacientes cadastrados
-            </p>
-          </a>
+        {/* Quick Actions Grid */}
+        <div className="mb-12">
+          <h2 className="mb-6 text-xl font-semibold text-[var(--foreground)]">
+            Acesso Rápido
+          </h2>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {quickActions.map((action) => (
+              <Link
+                key={action.href}
+                href={action.href}
+                className="group relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 transition-all hover:border-[var(--primary)] hover:shadow-lg active:scale-[0.98]"
+              >
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] transition-colors group-hover:bg-[var(--primary)] group-hover:text-[var(--primary-foreground)]">
+                  {action.icon}
+                </div>
+                <h3 className="mb-2 text-lg font-semibold text-[var(--foreground)]">
+                  {action.title}
+                </h3>
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  {action.description}
+                </p>
+                <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
+                  <svg
+                    className="h-5 w-5 text-[var(--muted-foreground)]"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
+
+        {/* Dashboard Charts */}
+        <DashboardCharts submissions={submissions} patients={patients} />
       </div>
     </div>
   );

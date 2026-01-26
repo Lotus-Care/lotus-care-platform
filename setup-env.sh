@@ -3,7 +3,7 @@
 # Script para configurar o arquivo .env.local
 # Execute: bash setup-env.sh
 
-echo "🔧 Configuração do .env.local para Lorus Care"
+echo "🔧 Configuração do .env.local para Lotus Care"
 echo "=============================================="
 echo ""
 

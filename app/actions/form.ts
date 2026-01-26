@@ -122,3 +122,58 @@ export async function getAllFormSubmissions(): Promise<
   return submissions;
 }
 
+export interface FormSubmissionWithAnswers extends FormSubmissionWithPatient {
+  answers: FormAnswer[];
+}
+
+export async function getFormSubmissionById(
+  submissionId: string
+): Promise<FormSubmissionWithAnswers | null> {
+  const userId = await getCurrentUser();
+  if (!userId) {
+    throw new Error("Não autenticado");
+  }
+
+  // Busca a submissão com verificação de usuário
+  const [submission] = await db
+    .select({
+      id: formSubmission.id,
+      formId: formSubmission.formId,
+      formTitle: formSubmission.formTitle,
+      patientId: formSubmission.patientId,
+      patientName: patient.name,
+      userId: formSubmission.userId,
+      createdAt: formSubmission.createdAt,
+      updatedAt: formSubmission.updatedAt,
+    })
+    .from(formSubmission)
+    .innerJoin(patient, eq(formSubmission.patientId, patient.id))
+    .where(eq(formSubmission.id, submissionId))
+    .limit(1);
+
+  if (!submission || submission.userId !== userId) {
+    return null;
+  }
+
+  // Busca as respostas
+  const responses = await db
+    .select()
+    .from(formResponse)
+    .where(eq(formResponse.submissionId, submissionId));
+
+  const answers: FormAnswer[] = responses.map((response) => ({
+    questionId: response.questionId,
+    questionText: response.questionText,
+    questionType: response.questionType as "number" | "slider" | "text",
+    answer: response.answer,
+  }));
+
+  // Remove userId do retorno
+  const { userId: _, ...submissionWithoutUserId } = submission;
+
+  return {
+    ...submissionWithoutUserId,
+    answers,
+  };
+}
+

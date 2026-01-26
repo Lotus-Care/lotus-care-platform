@@ -21,12 +21,16 @@ export default async function FormsPage() {
   ]);
 
   const forms = formsResult.data || [];
+  
+  // Pega o primeiro formulário (já vem ordenado por publishedAt:desc do Strapi)
+  const latestForm = forms.length > 0 ? forms[0] : null;
 
   return (
     <FormsClient
-      initialForms={forms}
+      initialForm={latestForm}
       initialPatients={patients}
       strapiError={formsResult.error}
+      userName={session.user.name || ""}
     />
   );
 }

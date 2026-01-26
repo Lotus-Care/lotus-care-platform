@@ -105,29 +105,29 @@ export default function PatientsClient({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-8">
+    <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-[var(--foreground)]">
             Gerenciamento de Pacientes
           </h1>
           <button
             onClick={() => handleOpenModal()}
-            className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800"
+            className="rounded-lg bg-[var(--primary)] px-6 py-3 text-sm font-medium text-[var(--primary-foreground)] transition-all hover:opacity-90 active:scale-95"
           >
             Adicionar Paciente
           </button>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-lg bg-red-100 border border-red-400 text-red-700 px-4 py-3">
+          <div className="mb-4 rounded-lg border border-red-500/50 bg-red-50 px-4 py-3 text-red-700 dark:bg-red-900/20 dark:text-red-400">
             {error}
           </div>
         )}
 
         {patients.length === 0 ? (
-          <div className="rounded-2xl bg-white p-8 shadow-xl dark:bg-gray-800">
-            <p className="text-center text-gray-600 dark:text-gray-400">
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-8">
+            <p className="text-center text-[var(--muted-foreground)]">
               Nenhum paciente cadastrado. Clique em "Adicionar Paciente" para
               começar.
             </p>
@@ -139,17 +139,17 @@ export default function PatientsClient({
                 {patients.map((patient) => (
                   <div
                     key={patient.id}
-                    className={`rounded-lg bg-white p-6 shadow-lg transition-all dark:bg-gray-800 ${
+                    className={`rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 transition-all ${
                       selectedPatient?.id === patient.id
-                        ? "ring-2 ring-blue-500"
-                        : "cursor-pointer hover:shadow-xl"
+                        ? "ring-2 ring-[var(--primary)]"
+                        : "cursor-pointer hover:border-[var(--primary)] hover:shadow-lg active:scale-[0.98]"
                     }`}
                     onClick={() => handleSelectPatient(patient)}
                   >
-                    <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
+                    <h3 className="mb-2 text-xl font-semibold text-[var(--foreground)]">
                       {patient.name}
                     </h3>
-                    <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="space-y-1 text-sm text-[var(--muted-foreground)]">
                       {patient.gender && (
                         <p>
                           <span className="font-medium">Sexo:</span> {patient.gender}
@@ -175,7 +175,7 @@ export default function PatientsClient({
                           handleOpenModal(patient);
                         }}
                         disabled={isPending}
-                        className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-700 dark:hover:bg-blue-800"
+                        className="flex-1 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-all hover:opacity-90 disabled:opacity-50 active:scale-95"
                       >
                         Editar
                       </button>
@@ -185,7 +185,7 @@ export default function PatientsClient({
                           handleDelete(patient.id);
                         }}
                         disabled={isPending}
-                        className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50 dark:bg-red-700 dark:hover:bg-red-800"
+                        className="flex-1 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-red-600 disabled:opacity-50 active:scale-95"
                       >
                         Excluir
                       </button>
@@ -198,9 +198,9 @@ export default function PatientsClient({
             {/* Seção de Formulários do Paciente Selecionado */}
             {selectedPatient && (
               <div className="lg:col-span-1">
-                <div className="sticky top-8 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+                <div className="sticky top-8 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
                   <div className="mb-4 flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-semibold text-[var(--foreground)]">
                       Formulários de {selectedPatient.name}
                     </h3>
                     <button
@@ -208,18 +208,18 @@ export default function PatientsClient({
                         setSelectedPatient(null);
                         setPatientForms([]);
                       }}
-                      className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      className="text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
                     >
                       ✕
                     </button>
                   </div>
 
                   {isLoadingForms ? (
-                    <p className="text-center text-gray-600 dark:text-gray-400">
+                    <p className="text-center text-[var(--muted-foreground)]">
                       Carregando...
                     </p>
                   ) : patientForms.length === 0 ? (
-                    <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-center text-sm text-[var(--muted-foreground)]">
                       Nenhum formulário preenchido para este paciente.
                     </p>
                   ) : (
@@ -227,12 +227,12 @@ export default function PatientsClient({
                       {patientForms.map((form) => (
                         <div
                           key={form.id}
-                          className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                          className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 p-4"
                         >
-                          <h4 className="mb-1 font-medium text-gray-900 dark:text-white">
+                          <h4 className="mb-1 font-medium text-[var(--foreground)]">
                             {form.formTitle}
                           </h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <p className="text-xs text-[var(--muted-foreground)]">
                             {new Date(
                               form.createdAt instanceof Date
                                 ? form.createdAt
@@ -257,9 +257,9 @@ export default function PatientsClient({
 
         {/* Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-800">
-              <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-xl">
+              <h2 className="mb-4 text-2xl font-bold text-[var(--foreground)]">
                 {editingPatient ? "Editar Paciente" : "Novo Paciente"}
               </h2>
               <form onSubmit={handleSubmit}>
@@ -267,7 +267,7 @@ export default function PatientsClient({
                   <div>
                     <label
                       htmlFor="name"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="block text-sm font-medium text-[var(--foreground)]"
                     >
                       Nome <span className="text-red-500">*</span>
                     </label>
@@ -277,14 +277,14 @@ export default function PatientsClient({
                       name="name"
                       required
                       defaultValue={editingPatient?.name || ""}
-                      className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      className="mt-1 w-full rounded-lg border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-[var(--foreground)] focus:border-[var(--ring)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]/20"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="gender"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="block text-sm font-medium text-[var(--foreground)]"
                     >
                       Sexo
                     </label>
@@ -292,7 +292,7 @@ export default function PatientsClient({
                       id="gender"
                       name="gender"
                       defaultValue={editingPatient?.gender || ""}
-                      className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      className="mt-1 w-full rounded-lg border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-[var(--foreground)] focus:border-[var(--ring)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]/20"
                     >
                       <option value="">Selecione...</option>
                       <option value="M">Masculino</option>
@@ -304,7 +304,7 @@ export default function PatientsClient({
                   <div>
                     <label
                       htmlFor="birthDate"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="block text-sm font-medium text-[var(--foreground)]"
                     >
                       Data de Nascimento
                     </label>
@@ -319,14 +319,14 @@ export default function PatientsClient({
                               .split("T")[0]
                           : ""
                       }
-                      className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      className="mt-1 w-full rounded-lg border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-[var(--foreground)] focus:border-[var(--ring)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]/20"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="followUpEmail"
-                      className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                      className="block text-sm font-medium text-[var(--foreground)]"
                     >
                       Email de Acompanhamento
                     </label>
@@ -335,7 +335,7 @@ export default function PatientsClient({
                       id="followUpEmail"
                       name="followUpEmail"
                       defaultValue={editingPatient?.followUpEmail || ""}
-                      className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      className="mt-1 w-full rounded-lg border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-[var(--foreground)] focus:border-[var(--ring)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]/20"
                     />
                   </div>
                 </div>
@@ -345,14 +345,14 @@ export default function PatientsClient({
                     type="button"
                     onClick={handleCloseModal}
                     disabled={isPending}
-                    className="flex-1 rounded-lg bg-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-400 disabled:opacity-50 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+                    className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition-all hover:bg-[var(--muted)] disabled:opacity-50 active:scale-95"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={isPending}
-                    className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 dark:bg-blue-700 dark:hover:bg-blue-800"
+                    className="flex-1 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-all hover:opacity-90 disabled:opacity-50 active:scale-95"
                   >
                     {isPending ? "Salvando..." : "Salvar"}
                   </button>

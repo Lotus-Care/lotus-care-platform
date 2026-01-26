@@ -1,8 +1,9 @@
 // Strapi Types
 export interface Alerta {
   id: number;
+  Gravidade?: number; // 0-100: 0 = menos grave (amarelo), 100 = mais grave (vermelho). Opcional para compatibilidade
   Valor: number;
-  avisar_quando: "Valor for Acima" | "Valor for Abaixo";
+  avisar_quando: "Valor for Acima" | "Valor for Abaixo" | "Valor for Igual" | "Valor for Igual ou Acima" | "Valor for Igual ou Abaixo ";
   Mensagem: string;
 }
 
@@ -10,11 +11,14 @@ export interface Campo {
   id: number;
   titulo: string;
   descricao?: string;
-  tipo: "numerico" | "texto" | "slider";
+  tipo: "texto" | "texto_longo" | "numerico" | "midia" | "checkbox" | "radio" | "select" | "data" | "hora" | "data_hora";
   obrigatorio: boolean;
   placeholder?: string;
   ordem?: number;
   alertas?: Alerta[];
+  valor_minimo?: number;
+  valor_maximo?: number;
+  opcoes?: string | string[] | { label: string; value: string }[]; // JSON string ou array de opções para select/radio/checkbox
 }
 
 export interface Secao {
