@@ -10,6 +10,13 @@ import {
 } from "@/app/actions";
 import type { Patient } from "@/types/patient";
 import type { FormSubmission } from "@/types/form";
+import { formatDateShort } from "@/lib/utils/dateUtils";
+import Button from "@/app/components/ui/Button";
+import Card from "@/app/components/ui/Card";
+import Modal from "@/app/components/ui/Modal";
+import Alert from "@/app/components/ui/Alert";
+import Input from "@/app/components/ui/Input";
+import Select from "@/app/components/ui/Select";
 
 interface PatientsClientProps {
   initialPatients: Patient[];
@@ -59,7 +66,6 @@ export default function PatientsClient({
           await createPatient(data);
         }
 
-        // Recarrega a lista de pacientes
         const updatedPatients = await getPatients();
         setPatients(updatedPatients);
         handleCloseModal();
@@ -111,38 +117,35 @@ export default function PatientsClient({
           <h1 className="text-3xl font-bold text-[var(--foreground)]">
             Gerenciamento de Pacientes
           </h1>
-          <button
-            onClick={() => handleOpenModal()}
-            className="rounded-lg bg-[var(--primary)] px-6 py-3 text-sm font-medium text-[var(--primary-foreground)] transition-all hover:opacity-90 active:scale-95"
-          >
+          <Button onClick={() => handleOpenModal()}>
             Adicionar Paciente
-          </button>
+          </Button>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-lg border border-red-500/50 bg-red-50 px-4 py-3 text-red-700 dark:bg-red-900/20 dark:text-red-400">
+          <Alert variant="error" className="mb-4">
             {error}
-          </div>
+          </Alert>
         )}
 
         {patients.length === 0 ? (
-          <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-8">
+          <Card className="p-8">
             <p className="text-center text-[var(--muted-foreground)]">
               Nenhum paciente cadastrado. Clique em "Adicionar Paciente" para
               começar.
             </p>
-          </div>
+          </Card>
         ) : (
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <div className="grid gap-4 md:grid-cols-2">
                 {patients.map((patient) => (
-                  <div
+                  <Card
                     key={patient.id}
-                    className={`rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 transition-all ${
+                    className={`p-6 transition-all cursor-pointer ${
                       selectedPatient?.id === patient.id
                         ? "ring-2 ring-[var(--primary)]"
-                        : "cursor-pointer hover:border-[var(--primary)] hover:shadow-lg active:scale-[0.98]"
+                        : "hover:border-[var(--primary)] hover:shadow-lg active:scale-[0.98]"
                     }`}
                     onClick={() => handleSelectPatient(patient)}
                   >
@@ -158,7 +161,7 @@ export default function PatientsClient({
                       {patient.birthDate && (
                         <p>
                           <span className="font-medium">Data de Nascimento:</span>{" "}
-                          {new Date(patient.birthDate).toLocaleDateString("pt-BR")}
+                          {formatDateShort(patient.birthDate)}
                         </p>
                       )}
                       {patient.followUpEmail && (
@@ -169,28 +172,29 @@ export default function PatientsClient({
                       )}
                     </div>
                     <div className="mt-4 flex gap-2">
-                      <button
+                      <Button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleOpenModal(patient);
                         }}
                         disabled={isPending}
-                        className="flex-1 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-all hover:opacity-90 disabled:opacity-50 active:scale-95"
+                        className="flex-1"
                       >
                         Editar
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="danger"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDelete(patient.id);
                         }}
                         disabled={isPending}
-                        className="flex-1 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-red-600 disabled:opacity-50 active:scale-95"
+                        className="flex-1"
                       >
                         Excluir
-                      </button>
+                      </Button>
                     </div>
-                  </div>
+                  </Card>
                 ))}
               </div>
             </div>
@@ -198,7 +202,7 @@ export default function PatientsClient({
             {/* Seção de Formulários do Paciente Selecionado */}
             {selectedPatient && (
               <div className="lg:col-span-1">
-                <div className="sticky top-8 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
+                <Card className="sticky top-8 p-6">
                   <div className="mb-4 flex items-center justify-between">
                     <h3 className="text-lg font-semibold text-[var(--foreground)]">
                       Formulários de {selectedPatient.name}
@@ -233,136 +237,89 @@ export default function PatientsClient({
                             {form.formTitle}
                           </h4>
                           <p className="text-xs text-[var(--muted-foreground)]">
-                            {new Date(
-                              form.createdAt instanceof Date
-                                ? form.createdAt
-                                : form.createdAt
-                            ).toLocaleDateString("pt-BR", {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                            {formatDateShort(form.createdAt)}
                           </p>
                         </div>
                       ))}
                     </div>
                   )}
-                </div>
+                </Card>
               </div>
             )}
           </div>
         )}
 
         {/* Modal */}
-        {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-xl">
-              <h2 className="mb-4 text-2xl font-bold text-[var(--foreground)]">
-                {editingPatient ? "Editar Paciente" : "Novo Paciente"}
-              </h2>
-              <form onSubmit={handleSubmit}>
-                <div className="space-y-4">
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-sm font-medium text-[var(--foreground)]"
-                    >
-                      Nome <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      required
-                      defaultValue={editingPatient?.name || ""}
-                      className="mt-1 w-full rounded-lg border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-[var(--foreground)] focus:border-[var(--ring)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]/20"
-                    />
-                  </div>
+        <Modal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          title={editingPatient ? "Editar Paciente" : "Novo Paciente"}
+          footer={
+            <>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleCloseModal}
+                disabled={isPending}
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                form="patient-form"
+                disabled={isPending}
+                isLoading={isPending}
+                className="flex-1"
+              >
+                {isPending ? "Salvando..." : "Salvar"}
+              </Button>
+            </>
+          }
+        >
+          <form id="patient-form" onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              <Input
+                name="name"
+                label="Nome"
+                required
+                defaultValue={editingPatient?.name || ""}
+              />
 
-                  <div>
-                    <label
-                      htmlFor="gender"
-                      className="block text-sm font-medium text-[var(--foreground)]"
-                    >
-                      Sexo
-                    </label>
-                    <select
-                      id="gender"
-                      name="gender"
-                      defaultValue={editingPatient?.gender || ""}
-                      className="mt-1 w-full rounded-lg border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-[var(--foreground)] focus:border-[var(--ring)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]/20"
-                    >
-                      <option value="">Selecione...</option>
-                      <option value="M">Masculino</option>
-                      <option value="F">Feminino</option>
-                      <option value="Other">Outro</option>
-                    </select>
-                  </div>
+              <Select
+                name="gender"
+                label="Sexo"
+                defaultValue={editingPatient?.gender || ""}
+              >
+                <option value="">Selecione...</option>
+                <option value="M">Masculino</option>
+                <option value="F">Feminino</option>
+                <option value="Other">Outro</option>
+              </Select>
 
-                  <div>
-                    <label
-                      htmlFor="birthDate"
-                      className="block text-sm font-medium text-[var(--foreground)]"
-                    >
-                      Data de Nascimento
-                    </label>
-                    <input
-                      type="date"
-                      id="birthDate"
-                      name="birthDate"
-                      defaultValue={
-                        editingPatient?.birthDate
-                          ? new Date(editingPatient.birthDate)
-                              .toISOString()
-                              .split("T")[0]
-                          : ""
-                      }
-                      className="mt-1 w-full rounded-lg border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-[var(--foreground)] focus:border-[var(--ring)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]/20"
-                    />
-                  </div>
+              <Input
+                type="date"
+                name="birthDate"
+                label="Data de Nascimento"
+                defaultValue={
+                  editingPatient?.birthDate
+                    ? new Date(editingPatient.birthDate)
+                        .toISOString()
+                        .split("T")[0]
+                    : ""
+                }
+              />
 
-                  <div>
-                    <label
-                      htmlFor="followUpEmail"
-                      className="block text-sm font-medium text-[var(--foreground)]"
-                    >
-                      Email de Acompanhamento
-                    </label>
-                    <input
-                      type="email"
-                      id="followUpEmail"
-                      name="followUpEmail"
-                      defaultValue={editingPatient?.followUpEmail || ""}
-                      className="mt-1 w-full rounded-lg border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-[var(--foreground)] focus:border-[var(--ring)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]/20"
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-6 flex gap-3">
-                  <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    disabled={isPending}
-                    className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition-all hover:bg-[var(--muted)] disabled:opacity-50 active:scale-95"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isPending}
-                    className="flex-1 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-all hover:opacity-90 disabled:opacity-50 active:scale-95"
-                  >
-                    {isPending ? "Salvando..." : "Salvar"}
-                  </button>
-                </div>
-              </form>
+              <Input
+                type="email"
+                name="followUpEmail"
+                label="Email de Acompanhamento"
+                defaultValue={editingPatient?.followUpEmail || ""}
+              />
             </div>
-          </div>
-        )}
+          </form>
+        </Modal>
       </div>
     </div>
   );
 }
-

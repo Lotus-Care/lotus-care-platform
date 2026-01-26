@@ -50,6 +50,8 @@ export async function createPatient(
     })
     .returning();
 
+    console.log(newPatient);
+    
   return newPatient[0];
 }
 

@@ -4,11 +4,11 @@ import { headers, cookies } from "next/headers";
 import { db } from "@/db";
 import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import Link from "next/link";
-import Image from "next/image";
 import { getAllFormSubmissions } from "@/app/actions/form";
 import { getPatients } from "@/app/actions/patient";
 import DashboardCharts from "./components/DashboardCharts";
+import QuickActionCard from "./components/ui/QuickActionCard";
+import UserHeader from "./components/ui/UserHeader";
 
 export default async function Home() {
   const headersList = await headers();
@@ -90,25 +90,11 @@ export default async function Home() {
       <div className="mx-auto max-w-6xl">
         {/* Header Section */}
         <div className="mb-12">
-          <div className="mb-6 flex items-center gap-4">
-            {session.user.image && (
-              <Image
-                src={session.user.image}
-                alt="Avatar"
-                width={64}
-                height={64}
-                className="h-16 w-16 rounded-full border-2 border-[var(--border)]"
-              />
-            )}
-            <div>
-              <h1 className="text-3xl font-bold text-[var(--foreground)] sm:text-4xl">
-                Bem-vindo, {session.user.name?.split(" ")[0]}!
-              </h1>
-              <p className="mt-2 text-[var(--muted-foreground)]">
-                {session.user.email}
-              </p>
-            </div>
-          </div>
+          <UserHeader
+            name={session.user.name}
+            email={session.user.email}
+            image={session.user.image}
+          />
         </div>
 
         {/* Quick Actions Grid */}
@@ -118,36 +104,13 @@ export default async function Home() {
           </h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {quickActions.map((action) => (
-              <Link
+              <QuickActionCard
                 key={action.href}
                 href={action.href}
-                className="group relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 transition-all hover:border-[var(--primary)] hover:shadow-lg active:scale-[0.98]"
-              >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] transition-colors group-hover:bg-[var(--primary)] group-hover:text-[var(--primary-foreground)]">
-                  {action.icon}
-                </div>
-                <h3 className="mb-2 text-lg font-semibold text-[var(--foreground)]">
-                  {action.title}
-                </h3>
-                <p className="text-sm text-[var(--muted-foreground)]">
-                  {action.description}
-                </p>
-                <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
-                  <svg
-                    className="h-5 w-5 text-[var(--muted-foreground)]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </div>
-              </Link>
+                title={action.title}
+                description={action.description}
+                icon={action.icon}
+              />
             ))}
           </div>
         </div>

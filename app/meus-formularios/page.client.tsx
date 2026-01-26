@@ -4,6 +4,10 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import type { FormSubmissionWithPatient } from "@/types/form";
 import type { Patient } from "@/types/patient";
+import { formatDateForDisplay } from "@/lib/utils/dateUtils";
+import Card from "@/app/components/ui/Card";
+import Select from "@/app/components/ui/Select";
+import Button from "@/app/components/ui/Button";
 
 interface MyFormsClientProps {
   initialSubmissions: FormSubmissionWithPatient[];
@@ -49,11 +53,11 @@ export default function MyFormsClient({
               >
                 Filtrar por paciente:
               </label>
-              <select
+              <Select
                 id="patient-filter"
                 value={selectedPatientId}
                 onChange={(e) => setSelectedPatientId(e.target.value)}
-                className="rounded-lg border border-[var(--input)] bg-[var(--background)] px-4 py-2 text-sm text-[var(--foreground)] transition-all focus:border-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20"
+                className="min-w-[200px]"
               >
                 <option value="">Todos os pacientes</option>
                 {patientsWithSubmissions.map((patient) => (
@@ -61,66 +65,62 @@ export default function MyFormsClient({
                     {patient.name}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
           )}
         </div>
 
         {filteredSubmissions.length === 0 ? (
-          <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-8">
+          <Card className="p-8">
             <p className="text-center text-[var(--muted-foreground)]">
               {selectedPatientId
                 ? "Nenhum formulário encontrado para este paciente."
                 : "Nenhum formulário enviado ainda. Acesse a página de Formulários para começar a preencher."}
             </p>
-          </div>
+          </Card>
         ) : (
           <div className="space-y-4">
             {filteredSubmissions.map((submission) => (
               <Link
                 key={submission.id}
                 href={`/meus-formularios/${submission.id}`}
-                className="block rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 transition-all hover:border-[var(--primary)] hover:shadow-lg active:scale-[0.98]"
+                className="block"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="mb-2 flex items-center gap-3">
-                      <h3 className="text-xl font-semibold text-[var(--foreground)]">
-                        {submission.formTitle}
-                      </h3>
-                      <span className="rounded-full bg-[var(--primary)]/10 px-3 py-1 text-sm font-medium text-[var(--primary)]">
-                        {submission.patientName}
-                      </span>
+                <Card className="p-6 transition-all hover:border-[var(--primary)] hover:shadow-lg active:scale-[0.98]">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="mb-2 flex items-center gap-3">
+                        <h3 className="text-xl font-semibold text-[var(--foreground)]">
+                          {submission.formTitle}
+                        </h3>
+                        <span className="rounded-full bg-[var(--primary)]/10 px-3 py-1 text-sm font-medium text-[var(--primary)]">
+                          {submission.patientName}
+                        </span>
+                      </div>
+                      <p className="text-sm text-[var(--muted-foreground)]">
+                        Enviado em{" "}
+                        {formatDateForDisplay(
+                          submission.createdAt instanceof Date
+                            ? submission.createdAt
+                            : submission.createdAt
+                        )}
+                      </p>
                     </div>
-                    <p className="text-sm text-[var(--muted-foreground)]">
-                      Enviado em{" "}
-                      {new Date(
-                        submission.createdAt instanceof Date
-                          ? submission.createdAt
-                          : submission.createdAt
-                      ).toLocaleDateString("pt-BR", {
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
+                    <svg
+                      className="h-5 w-5 text-[var(--muted-foreground)]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
                   </div>
-                  <svg
-                    className="h-5 w-5 text-[var(--muted-foreground)]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </div>
+                </Card>
               </Link>
             ))}
           </div>
@@ -129,4 +129,3 @@ export default function MyFormsClient({
     </div>
   );
 }
-
