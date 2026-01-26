@@ -26,8 +26,8 @@ export function validateField(campo: Campo, value: string): ValidationResult {
     return { success: true };
   }
 
-  // Validação para campos numéricos e slider
-  if (campo.tipo === "numerico" || campo.tipo === "slider") {
+  // Validação para campos numéricos
+  if (campo.tipo === "numerico") {
     const numValue = parseFloat(value);
 
     if (isNaN(numValue)) {
