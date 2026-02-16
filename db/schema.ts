@@ -115,6 +115,9 @@ export const formSubmission = pgTable("form_submission", {
   patientId: text("patient_id")
     .notNull()
     .references(() => patient.id, { onDelete: "cascade" }),
+  status: text("status").notNull().default("draft"), // "draft" | "finalized"
+  finalizedAt: timestamp("finalized_at"),
+  checkupEndTime: timestamp("checkup_end_time"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

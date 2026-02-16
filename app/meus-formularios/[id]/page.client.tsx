@@ -86,6 +86,8 @@ function getAnswerLabel(questionType: string) {
 export default function FormSubmissionView({
   submission,
 }: FormSubmissionViewProps) {
+  const isDraft = submission.status === "draft";
+
   return (
     <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
@@ -110,23 +112,91 @@ export default function FormSubmissionView({
             </Button>
           </Link>
 
-          <div className="mb-4 flex items-center gap-3">
+          <div className="mb-4 flex flex-wrap items-center gap-3">
             <h1 className="text-3xl font-bold text-[var(--foreground)]">
               {submission.formTitle}
             </h1>
             <span className="rounded-full bg-[var(--primary)]/10 px-3 py-1 text-sm font-medium text-[var(--primary)]">
               {submission.patientName}
             </span>
+            {isDraft ? (
+              <span className="rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-sm font-medium text-amber-700 dark:text-amber-400">
+                Rascunho
+              </span>
+            ) : (
+              <span className="rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 text-sm font-medium text-green-700 dark:text-green-400">
+                Finalizado
+              </span>
+            )}
           </div>
 
-          <p className="text-sm text-[var(--muted-foreground)]">
-            Enviado em{" "}
-            {formatDateForDisplay(
-              submission.createdAt instanceof Date
-                ? submission.createdAt
-                : submission.createdAt
-            )}
-          </p>
+          {/* Timestamps */}
+          <Card className="p-4 sm:p-5 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <p className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider mb-1">
+                  Criado em
+                </p>
+                <p className="text-sm font-semibold text-[var(--foreground)]">
+                  {formatDateForDisplay(
+                    submission.createdAt instanceof Date
+                      ? submission.createdAt
+                      : submission.createdAt
+                  )}
+                </p>
+              </div>
+              {submission.finalizedAt && (
+                <div>
+                  <p className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider mb-1">
+                    Finalizado em
+                  </p>
+                  <p className="text-sm font-semibold text-[var(--foreground)]">
+                    {formatDateForDisplay(
+                      submission.finalizedAt instanceof Date
+                        ? submission.finalizedAt
+                        : submission.finalizedAt
+                    )}
+                  </p>
+                </div>
+              )}
+              {submission.checkupEndTime && (
+                <div>
+                  <p className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider mb-1">
+                    Fim de Checkup
+                  </p>
+                  <p className="text-sm font-semibold text-[var(--foreground)]">
+                    {formatDateForDisplay(
+                      submission.checkupEndTime instanceof Date
+                        ? submission.checkupEndTime
+                        : submission.checkupEndTime
+                    )}
+                  </p>
+                </div>
+              )}
+            </div>
+          </Card>
+
+          {/* Edit button for drafts */}
+          {isDraft && (
+            <Link href={`/formularios?submission=${submission.id}`}>
+              <Button variant="secondary" size="sm" className="mb-4">
+                <svg
+                  className="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+                Continuar Editando
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Respostas */}

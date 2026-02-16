@@ -6,6 +6,7 @@ import FloatingActionButton from "./components/FloatingActionButton";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,6 +69,15 @@ export default async function RootLayout({
         <main className="min-h-screen bg-[var(--background)] lg:ml-64">
           {children}
         </main>
+        <Toaster
+          position="bottom-right"
+          richColors
+          toastOptions={{
+            style: {
+              fontSize: "14px",
+            },
+          }}
+        />
       </body>
         </ThemeProvider>
     </html>
