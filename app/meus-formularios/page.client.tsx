@@ -12,6 +12,7 @@ import Input from "@/app/components/ui/Input";
 interface MyFormsClientProps {
   initialSubmissions: FormSubmissionWithPatient[];
   patients: Patient[];
+  initialStatusFilter?: string;
 }
 
 function getSubmissionTitle(submission: FormSubmissionWithPatient): string {
@@ -26,9 +27,10 @@ function getSubmissionTitle(submission: FormSubmissionWithPatient): string {
 export default function MyFormsClient({
   initialSubmissions,
   patients,
+  initialStatusFilter = "",
 }: MyFormsClientProps) {
   const [selectedPatientId, setSelectedPatientId] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>(initialStatusFilter);
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
   const [showFilters, setShowFilters] = useState(false);

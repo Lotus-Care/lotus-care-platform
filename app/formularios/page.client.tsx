@@ -57,6 +57,7 @@ export default function FormsClient({
   );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
+  const [isPendingLater, setIsPendingLater] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submissionId, setSubmissionId] = useState<string | null>(
     draftData?.submissionId || null
@@ -364,6 +365,38 @@ export default function FormsClient({
     });
   };
 
+  const handleFinishLater = async () => {
+    setError(null);
+
+    if (!form) return;
+    if (!selectedPatientId) {
+      setError("Por favor, selecione ou crie um paciente");
+      return;
+    }
+
+    setIsPendingLater(true);
+    try {
+      const draftId = await ensureDraftExists(selectedPatientId);
+      if (!draftId) {
+        setError("Erro ao criar formulário");
+        return;
+      }
+
+      const formAnswers = buildFormAnswers(answers);
+      await autoSaveResponses(draftId, formAnswers);
+
+      toast.success("Rascunho salvo");
+      router.push("/meus-formularios?status=draft");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Erro ao salvar rascunho"
+      );
+      toast.error("Erro ao salvar rascunho");
+    } finally {
+      setIsPendingLater(false);
+    }
+  };
+
   if (!form) {
     return (
       <div className="px-4 py-12 sm:px-6 lg:px-8">
@@ -506,15 +539,28 @@ export default function FormsClient({
                   <span>Selecione um paciente e preencha o formulário</span>
                 )}
               </div>
-              <Button
-                type="submit"
-                disabled={isPending || !selectedPatientId}
-                isLoading={isPending}
-                className="w-full sm:w-auto"
-                size="lg"
-              >
-                {isPending ? "Finalizando..." : "Finalizar Formulário"}
-              </Button>
+              <div className="flex w-full sm:w-auto flex-col-reverse sm:flex-row gap-2 sm:gap-3 sm:items-center">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={isPending || isPendingLater || !selectedPatientId}
+                  isLoading={isPendingLater}
+                  className="w-full sm:w-auto"
+                  size="lg"
+                  onClick={handleFinishLater}
+                >
+                  {isPendingLater ? "Salvando..." : "Finalizar depois"}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isPending || isPendingLater || !selectedPatientId}
+                  isLoading={isPending}
+                  className="w-full sm:w-auto"
+                  size="lg"
+                >
+                  {isPending ? "Finalizando..." : "Finalizar Formulário"}
+                </Button>
+              </div>
             </div>
           </div>
         </form>
